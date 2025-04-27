@@ -1,0 +1,97 @@
+#include <iostream>
+using namespace std;
+
+int nombre, cedula, membresia, factura, consumos, personaAutorizada, fondos;
+
+int afiliarSocio() {
+    cout << "Afiliar socio" << endl;
+    return 0; // Retornamos un valor, en este caso 0
+}
+
+int registrarPersonaAutada() {
+    cout << "Registrar persona autorizada" << endl;
+    return 0; // Retornamos un valor, en este caso 0
+}
+
+int pagarFactura() {
+    cout << "Pagar factura" << endl;
+    return 0; // Retornamos un valor, en este caso 0
+}
+
+int registrarConsumos() {
+    cout << "Registrar consumos" << endl;
+    return 0; // Retornamos un valor, en este caso 0
+}
+
+int aumentarFondos() {
+    cout << "Aumentar fondos del socio" << endl;
+    return 0; // Retornamos un valor, en este caso 0
+}
+
+int main() {
+    int slc; 
+    cout << "Seleccione una opción:" << endl;
+    cout << "1. Afiliar un socio" << endl;
+    cout << "2. Registrar persona autorizada" << endl;
+    cout << "3. Pagar factura" << endl;
+    cout << "4. Registrar consumos" << endl;
+    cout << "5. Aumentar fondos del socio" << endl;
+
+    cin >> slc; 
+    
+    switch (slc) {
+        case 1:
+            afiliarSocio();
+            break;
+        case 2:
+            registrarPersonaAutada();
+            break;
+        case 3:
+            pagarFactura();
+            for (consumos-Fondos);
+                struct Factura {
+             int numero;
+             float monto;
+            };
+
+            void ingresarFacturas(int cantidad) {
+            std::vector<Factura> facturas(cantidad);
+
+                for (int i = 0; i < cantidad; ++i) {
+                std::cout << "Ingrese el número de la factura " << (i + 1) << ": ";
+                std::cin >> facturas[i].numero;
+                std::cout << "Ingrese el monto de la factura " << (i + 1) << ": ";
+                std::cin >> facturas[i].monto;
+                }
+
+                std::cout << "\nFacturas ingresadas:\n";
+                    for (const auto& factura : facturas) {
+                    std::cout << "Factura No: " << factura.numero << ", Monto: " << factura.monto << "\n";
+                    }
+                    }
+
+                    int main() {
+                    int cantidad;
+
+                    std::cout << "¿Cuántas facturas desea ingresar? ";
+                    std::cin >> cantidad;
+
+                    if (cantidad > 0) {
+                    ingresarFacturas(cantidad);
+                    } else {
+                     std::cout << "La cantidad de facturas debe ser mayor que cero.\n";
+                    }  
+            break;
+        case 4:
+            registrarConsumos();
+            break;
+        case 5:
+            aumentarFondos();
+            break;
+        default: 
+            cout << "Opción no válida." << endl;
+            break;
+    }
+
+    return 0;
+}

@@ -1,0 +1,307 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cctype>
+#include <fstream> // Para manejar archivos
+
+// Autores del código:
+// 1. Autor 1 - Sherman Rodriguez
+// 2. Autor 2 - Juan Esteban Lievano
+// 3. Autor 3 - Carlos Manosalva
+// 4. Autor 4 - Joseph Linares
+
+using namespace std;
+
+struct Socio {
+    string nombre;
+    string cedula;
+    string tipo; // VIP o Regular
+    double fondos; // Fondos disponibles
+};
+
+struct Factura {
+    int numero; // Número de factura
+    double monto; // Monto de la factura
+    bool pagada; // Estado de la factura
+};
+
+vector<Socio> socios; // Vector para almacenar los socios
+vector<Factura> facturas; // Vector para almacenar las facturas
+
+bool soloLetras(const string& str) {
+    for (char c : str) {
+        if (!isalpha(static_cast<unsigned char>(c)) && c != ' ') {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool soloNumeros(const string& str) {
+    for (char c : str) {
+        if (!isdigit(static_cast<unsigned char>(c))) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void guardarSocio(const Socio& socio) {
+    ofstream archivo("socios.txt", ios::app); // Abre el archivo en modo append
+    if (archivo.is_open()) {
+        archivo << "Nombre: " << socio.nombre << ", Cédula: " << socio.cedula 
+                << ", Tipo: " << socio.tipo << ", Fondos: " << socio.fondos << endl;
+        archivo.close();
+    } else {
+        cout << "Error al abrir el archivo." << endl;
+    }
+}
+
+void afiliarSocio() {
+    cout << "Afiliar socio" << endl;
+    cout << "Seleccione el tipo de socio:" << endl;
+    cout << "1. Socio VIP" << endl;
+    cout << "2. Socio Regular" << endl;
+    int tipo;
+    cin >> tipo;
+    cin.ignore(); // Limpiar buffer para getline
+    if (tipo != 1 && tipo != 2) {
+        cout << "Opción no válida." << endl;
+        return; // Salir de la función
+    }
+    Socio nuevoSocio;
+    nuevoSocio.tipo = (tipo == 1) ? "VIP" : "Regular";
+
+    // Validar nombre solo con letras y espacio
+    do {
+        cout << "Ingrese el nombre del socio (solo letras): ";
+        getline(cin, nuevoSocio.nombre);
+        if (!soloLetras(nuevoSocio.nombre)) {
+            cout << "Error: El nombre solo debe contener letras y espacios. Inténtelo de nuevo.\n";
+        }
+    } while (!soloLetras(nuevoSocio.nombre));
+
+    // Validar cédula solo con números
+    do {
+        cout << "Ingrese la cédula del socio (solo números): ";
+        getline(cin, nuevoSocio.cedula);
+        if (!soloNumeros(nuevoSocio.cedula)) {
+            cout << "Error: La cédula solo debe contener números. Inténtelo de nuevo.\n";
+        }
+    } while (!soloNumeros(nuevoSocio.cedula));
+
+    cout << "Ingrese los fondos iniciales del socio: ";
+    cin >> nuevoSocio.fondos;
+
+    // Validar fondos mínimos para VIP y Regular
+    if (nuevoSocio.tipo == "VIP" && nuevoSocio.fondos < 60000) {
+        cout << "Error: Un socio VIP debe tener al menos 60,000 en fondos." << endl;
+        return;
+    }
+    if (nuevoSocio.tipo == "Regular" && nuevoSocio.fondos < 50000) {
+        cout << "Error: Un socio Regular debe tener al menos 50,000 en fondos." << endl;
+        return;
+    }
+
+    cout << "Afiliando socio " << nuevoSocio.tipo << "..." << endl;
+    cout << "Nombre: " << nuevoSocio.nombre << endl;
+    cout << "Cédula: " << nuevoSocio.cedula << endl;
+    cout << "Fondos: " << nuevoSocio.fondos << endl;
+    cout << "Socio afiliado exitosamente." << endl;
+
+    // Guardar la información del socio en un archivo
+    guardarSocio(nuevoSocio);
+    socios.push_back(nuevoSocio); // Agregar socio al vector
+}
+
+void mostrarSocios() {
+    ifstream archivo("socios.txt");
+    if (archivo.is_open()) {
+        string linea;
+        cout << "Lista de socios:" << endl;
+        while (getline(archivo, linea)) {
+            cout << linea << endl;
+        }
+        archivo.close();
+    } else {
+        cout << "Error al abrir el archivo." << endl;
+    }
+}
+
+Socio* buscarSocioPorCedula(const string& cedula) {
+    for (auto& socio : socios) {
+        if (socio.cedula == cedula) {
+            return &socio; // Retorna un puntero al socio encontrado
+        }
+    }
+    return nullptr; // Retorna nullptr si no se encuentra el socio
+}
+
+void ingresarFactura() {
+    Factura nuevaFactura;
+    cout << "Ingrese el número de factura: ";
+    cin >> nuevaFactura.numero;
+    cout << "Ingrese el monto de la factura: ";
+    cin >> nuevaFactura.monto;
+    nuevaFactura.pagada = false; // Inicialmente, la factura no está pagada
+
+    facturas.push_back(nuevaFactura);
+    cout << "Factura ingresada exitosamente." << endl;
+}
+
+void pagarFactura(Socio& socio) {
+    int numeroFactura;
+    cout << "Ingrese el número de factura a pagar: ";
+    cin >> numeroFactura;
+
+    for (auto& factura : facturas) {
+        if (factura.numero == numeroFactura) {
+            // Verificar si la factura ya está pagada
+            if (factura.pagada) {
+                cout << "Error: La factura ya ha sido pagada." << endl;
+                return;
+            }
+
+            // Verificar si hay fondos suficientes
+            if (socio.fondos >= factura.monto) {
+                socio.fondos -= factura.monto; // Descontar el monto de los fondos del socio
+                factura.pagada = true; // Marcar la factura como pagada
+
+                // Actualizar el archivo de socios
+                ofstream archivo("socios.txt", ios::trunc); // Limpiar el archivo
+                if (archivo.is_open()) {
+                    for (const auto& s : socios) {
+                        archivo << "Nombre: " << s.nombre << ", Cédula: " << s.cedula 
+                                << ", Tipo: " << s.tipo << ", Fondos: " << s.fondos << endl;
+                    }
+                    archivo.close();
+                } else {
+                    cout << "Error al abrir el archivo." << endl;
+                }
+
+                cout << "Factura pagada exitosamente. Fondos restantes: " << socio.fondos << endl;
+                return;
+            } else {
+                cout << "Error: Fondos insuficientes para pagar la factura." << endl;
+                return;
+            }
+        }
+    }
+    cout << "Factura no encontrada." << endl;
+}
+
+void mostrarFacturasNoPagadas() {
+    cout << "Facturas no pagadas:" << endl;
+    cout << "Número de Factura\tMonto\tEstado" << endl;
+    for (const auto& factura : facturas) {
+        if (!factura.pagada) {
+            cout << factura.numero << "\t\t" << factura.monto << "\tNo Pagada" << endl;
+        }
+    }
+}
+
+void agregarFondos() {
+    string cedula;
+    cout << "Ingrese la cédula del socio para agregar fondos: ";
+    cin >> cedula;
+
+    Socio* socio = buscarSocioPorCedula(cedula);
+    if (socio == nullptr) {
+        cout << "Socio no encontrado." << endl;
+        return;
+    }
+
+    double monto;
+    cout << "Ingrese el monto a abonar: ";
+    cin >> monto;
+
+    socio->fondos += monto; // Aumentar los fondos del socio
+
+    // Actualizar el archivo de socios
+    ofstream archivo("socios.txt", ios::trunc); // Limpiar el archivo
+    if (archivo.is_open()) {
+        for (const auto& s : socios) {
+            archivo << "Nombre: " << s.nombre << ", Cédula: " << s.cedula 
+                    << ", Tipo: " << s.tipo << ", Fondos: " << s.fondos << endl;
+        }
+        archivo.close();
+    } else {
+        cout << "Error al abrir el archivo." << endl;
+    }
+
+    cout << "Fondos aumentados exitosamente. Fondos actuales: " << socio->fondos << endl;
+}
+
+void menuFacturas() {
+    string cedula;
+    cout << "Ingrese la cédula del socio: ";
+    cin >> cedula;
+
+    Socio* socio = buscarSocioPorCedula(cedula);
+    if (socio == nullptr) {
+        cout << "Socio no encontrado." << endl;
+        return;
+    }
+
+    int opcion;
+    do {
+        cout << "Menu de Facturas para " << socio->nombre << " (Cédula: " << socio->cedula << "):" << endl;
+        cout << "1. Ingresar factura" << endl;
+        cout << "2. Pagar factura" << endl;
+        cout << "3. Mostrar facturas no pagadas" << endl;
+        cout << "0. Volver al menú principal" << endl;
+        cin >> opcion;
+
+        switch (opcion) {
+            case 1:
+                ingresarFactura();
+                break;
+            case 2:
+                pagarFactura(*socio);
+                break;
+            case 3:
+                mostrarFacturasNoPagadas();
+                break;
+            case 0:
+                cout << "Volviendo al menú principal..." << endl;
+                break;
+            default:
+                cout << "Opción no válida." << endl;
+                break;
+        }
+    } while (opcion != 0);
+}
+
+int main() {
+    int slc;
+    do {
+        cout << "Seleccione una opción:" << endl;
+        cout << "1. Afiliar un socio" << endl;
+        cout << "2. Mostrar socios" << endl;
+        cout << "3. Agregar fondos al socio" << endl;
+        cout << "4. Manejar facturas" << endl;
+        cout << "0. Salir" << endl;
+        cin >> slc;
+        switch (slc) {
+            case 1:
+                afiliarSocio();
+                break;
+            case 2:
+                mostrarSocios();
+                break;
+            case 3:
+                agregarFondos();
+                break;
+            case 4:
+                menuFacturas();
+                break;
+            case 0:
+                cout << "Saliendo del programa..." << endl;
+                break;
+            default:
+                cout << "Opción no válida." << endl;
+                break;
+        }
+    } while (slc != 0);
+    return 0;
+}
